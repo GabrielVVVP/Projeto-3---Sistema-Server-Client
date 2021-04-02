@@ -67,7 +67,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("Projeto 2 - Servidor", layout)
+window = sg.Window("Projeto 3 - Servidor", layout)
 
 count = 1
 state_machine = 0
@@ -80,7 +80,7 @@ while True:
     if (temp == 2):
         state_machine += 1
         temp=1 
-    if (state_machine == 6):
+    if (state_machine == 6):        
         count = 1
         state_machine=0
         temp=0 
@@ -101,7 +101,18 @@ while True:
             STX = values['combo3']
             SRX = values['combo4']
             if (((STX==SRX)and(filename!=None)and(modo=="ARDUINO"))or((STX!=SRX)and(filename!=None)and(modo=="INTERNO"))):
-                
+                window["-ROUT1-"].update("")
+                window["-ROUT2-"].update("")
+                window["-ROUT3-"].update("")
+                window["-ROUT4-"].update("")
+                window["-ROUT5-"].update("")
+                window["-ROUT6-"].update("")
+                window["-ROUT7-"].update("")
+                window["-ROUT8-"].update("")
+                window["-ROUT9-"].update("")
+                window["-ROUT10-"].update("")
+                window["-ROUT11-"].update("")
+                window["-ROUT12-"].update("")
                 baudrate = values['combo2']
                 
                 # Aviso para de início da GUI

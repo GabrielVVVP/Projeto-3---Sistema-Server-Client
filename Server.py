@@ -40,10 +40,10 @@ class Server:
         id_value = int.from_bytes(buffer[:4], byteorder="big")
         quantity_value = int.from_bytes(buffer[4:9], byteorder="big") 
         read_pkg = buffer[9]
-        end_value = int.from_bytes(buffer[-4:], byteorder="big")       
-        full_payload = buffer[10:-4]
+        end_value = int.from_bytes(buffer[-4:], byteorder="big")
+        wrong_value = buffer[-5]
             
-        if (id_value == id_num+1)and(quantity_value==quantity)and(len(full_payload)==114)and(end_value==404):
+        if (id_value == id_num+1)and(quantity_value==quantity)and(wrong_value!=203)and(end_value==404):
             respost = "Tudo correto."
             return respost, read_pkg 
         else:
@@ -52,7 +52,7 @@ class Server:
                 errormsg += "ID incorreto no Head. "
             elif (quantity_value!=quantity):
                 errormsg += "Quantidade total de pacotes incorreta no Head. "
-            elif (len(full_payload)!=114):
+            elif (wrong_value==203):
                 errormsg += "Tamanho do Payload incorreto. "
             elif (end_value!=404):
                 errormsg += "Valor final incorreto."    

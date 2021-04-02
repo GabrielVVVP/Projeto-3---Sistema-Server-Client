@@ -28,23 +28,13 @@ class Client:
         self.execution_time = 0
         self.Baud_Rate = baudrate
     
-    def package_analyzer(self,buffer, quantity, id_num, size, force_errors=0):
+    def package_analyzer(self,buffer, quantity, id_num, size):
         id_value = int.from_bytes(buffer[:4], byteorder="big")
-        quantity_value = int.from_bytes(buffer[4:9], byteorder="big") 
-        end_value = int.from_bytes(buffer[-4:], byteorder="big")       
-        full_payload = buffer[10:-4]
-        
-        # Force Errors
-        if(force_errors==1):
-            id_value+=1
-        elif(force_errors==2):
-            quantity_value+=1
-        elif(force_errors==3):
-            end_value+=1
-        elif(force_errors==4):
-            full_payload=buffer[10:-5]
+        quantity_value = int.from_bytes(buffer[4:9], byteorder="big")
+        end_value = int.from_bytes(buffer[-4:], byteorder="big") 
+        wrong_value = buffer[-5]
             
-        if (id_value == id_num+1)and(quantity_value==quantity)and(len(full_payload)==114)and(end_value==404):
+        if (id_value == id_num+1)and(quantity_value==quantity)and(wrong_value!=203)and(end_value==404):
             respost = "Tudo correto."
             return respost 
         else:
@@ -53,12 +43,32 @@ class Client:
                 errormsg += "ID incorreto no Head. "
             elif (quantity_value!=quantity):
                 errormsg += "Quantidade total de pacotes incorreta no Head. "
-            elif (len(full_payload)!=114):
+            elif (wrong_value==203):
                 errormsg += "Tamanho do Payload incorreto. "
             elif (end_value!=404):
                 errormsg += "Valor final incorreto."    
             return errormsg
-    
+        
+    def package_errors(self,buffer,force_errors=0):
+        # Force Errors
+        if(force_errors==1):
+            id_value = int.from_bytes(buffer[:4], byteorder="big")
+            id_value+=1
+            id_val = (id_value).to_bytes(4, byteorder="big")
+            buffer = id_val+buffer[4:]
+        elif(force_errors==2):
+            quantity_value = int.from_bytes(buffer[4:9], byteorder="big")
+            quantity_value+=1
+            q_val = (quantity_value).to_bytes(4, byteorder="big")
+            buffer = buffer[:4]+q_val+buffer[9:]
+        elif(force_errors==3):
+            end_value = (405).to_bytes(4, byteorder="big")
+            buffer = buffer[-4:]+end_value
+        elif(force_errors==4):
+            wrong_value = (203).to_bytes(1, byteorder="big")
+            buffer = buffer[0:10]+buffer[10:-5]+wrong_value+buffer[-4:]
+        return buffer    
+        
     def handshake_analyzer(self,buffer,numberofpackages,size):
         num_value = int.from_bytes(buffer[:4], byteorder="big")
         size_value = int.from_bytes(buffer[4:10], byteorder="big")
@@ -66,7 +76,10 @@ class Client:
         
         if (num_value == numberofpackages)and(size_value==size)and(end_value==404):
             respost = "Recebido do Server a resposta do handshake corretamente."
-            return respost 
+            return respost
+        elif (num_value == 0)and(size_value==0)and(end_value==0):
+            respost = "O Server não está pronto para receber um handshake."
+            return respost
         else:
             errormsg = "Ocorreu(eram) os seguinte(s) erros: "
             if (num_value != numberofpackages):
@@ -217,12 +230,13 @@ class Client:
                 
     def data_send_response(self, count):
             try:
-                self.CTX.sendData(np.asarray(self.pacotes[count]))
+                my_errors = [0,1,2,3,4]
+                error_value = random.choices(my_errors, weights = [100,10,0,0,0])[0]
+                self.txBuffer_S = self.package_errors(self.pacotes[count],error_value)
+                self.CTX.sendData(np.asarray(self.txBuffer_S))
                 time.sleep(0.1)
                 self.rxBuffer_D, nRx = self.CRX.getData(128)
-                my_errors = [0,1,2,3,4]
-                error_value = random.choices(my_errors, weights = [90,0,0,0,10])[0]
-                package_check = self.package_analyzer(self.rxBuffer_D, self.numberofpackages, count-1, self.txBuffer_len, error_value)
+                package_check = self.package_analyzer(self.rxBuffer_D, self.numberofpackages, count-1, self.txBuffer_len)
                 if (package_check=="Tudo correto."):
                     client_data_msg1 = "Pacote enviado corretamente."
                     print(client_data_msg1)

@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import os.path
 import Client
+import time
 
 sg.theme('Dark')
 
@@ -77,7 +78,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("Projeto 2 - Cliente", layout)
+window = sg.Window("Projeto 3 - Cliente", layout)
 
 count = 1
 state_machine = 0
@@ -85,6 +86,7 @@ temp=0
 
 # Run the Event Loop
 while True:
+    time.sleep(0.1)
     if (temp == 1)and(state_machine!=1)and(state_machine!=3):
         state_machine += 1
     if (temp == 2):
@@ -129,7 +131,23 @@ while True:
             filename = os.path.join(values["-FOLDER-"], values["-FILE LIST-"][0])
             
             if (((CTX==CRX)and(filename!=None)and(modo=="ARDUINO"))or((CTX!=CRX)and(filename!=None)and(modo=="INTERNO"))):
-                
+                window["-ROUT1-"].update("")
+                window["-ROUT2-"].update("")
+                window["-ROUT3-"].update("")
+                window["-ROUT4-"].update("")
+                window["-ROUT5-"].update("")
+                window["-ROUT6-"].update("")
+                window["-ROUT7-"].update("")
+                window["-ROUT8-"].update("")
+                window["-ROUT9-"].update("")
+                window["-ROUT10-"].update("")
+                window["-ROUT11-"].update("")
+                window["-ROUT12-"].update("")
+                window["-ROUT13-"].update("")
+                window["-ROUT14-"].update("")
+                window["-ROUT15-"].update("")
+                window["-ROUT16-"].update("")
+                window["-ROUT17-"].update("")
                 baudrate = values['combo2']
                 
                 # Aviso para de início da GUI
@@ -159,7 +177,6 @@ while True:
             window["-ROUT5-"].update(client_handshake_resp[0])
             window["-ROUT6-"].update(client_handshake_resp[1])
             window["-ROUT7-"].update(client_handshake_resp[2])
-            window.Refresh()
             if (client_handshake_resp[2]=="Recebido do Server a resposta do handshake corretamente."):
                 state_machine=1
                 temp=2
@@ -168,6 +185,8 @@ while True:
                 window["-HAND-"].update(visible=True)
                 state_machine=0
                 temp=0
+            window.Refresh()
+            time.sleep(0.1)
         except:
             pass
     elif state_machine == 2:  
