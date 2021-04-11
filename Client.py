@@ -231,7 +231,7 @@ class Client:
     def data_send_response(self, count):
             try:
                 my_errors = [0,1,2,3,4]
-                error_value = random.choices(my_errors, weights = [100,10,0,0,0])[0]
+                error_value = random.choices(my_errors, weights = [100,0,0,0,0])[0]
                 self.txBuffer_S = self.package_errors(self.pacotes[count],error_value)
                 self.CTX.sendData(np.asarray(self.txBuffer_S))
                 time.sleep(0.1)
